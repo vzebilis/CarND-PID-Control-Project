@@ -1,6 +1,9 @@
 #ifndef PID_H
 #define PID_H
 
+static constexpr int    NUM_COEF = 3;
+static constexpr double THROTTLE = 0.6;
+
 class PID {
  public:
   /**
@@ -31,10 +34,21 @@ class PID {
    */
   double TotalError();
 
+  /**
+   * Get the average error so far
+   */
+  double AverageError();
+
+  /**
+   * Print internal coefficients
+   */
+  void PrintCoefficients();
+
  private:
   /**
    * PID Errors
    */
+  long   count;
   double p_error;
   double i_error;
   double d_error;
@@ -42,9 +56,7 @@ class PID {
   /**
    * PID Coefficients
    */ 
-  double Kp;
-  double Ki;
-  double Kd;
+  double K[NUM_COEF];
 };
 
 #endif  // PID_H
