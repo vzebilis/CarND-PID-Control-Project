@@ -1,0 +1,62 @@
+===============================================================================
+  Reflection on the Proportional Integral Derivative (PID) Controller for:
+    Udacity CarND PID Control Project
+  Author: Vasileios Zempilis  Date: November 10th 2019 (Vanilla ftw!)
+===============================================================================
+
+This Project is about implementing a Proportional-Integral-Derivative (PID)
+controller for use in the provided simulator, in order to guide a vehicle
+around the given track, without going out of bounds. The speed reached
+in this implementation is at 60MPH, which is enough to drive fast but
+safely around the track.
+
+The necessary feedback is calculated each time by the formula:
+
+a = - Kp * CTE - Kd * dCTE/dt - Ki * Sum(CTE)
+Where: CTE is the crosstrack error at this point in time, dCTE/dt is the
+current error derivative and Sum(CTE) is the accumulated error so far.
+Kp, Kd and Ki are the hyperparameters for the different components of the
+control mechanism: P, D and I respectively.
+
+- The P, I and D hyperparameters were tuned manually to a final state of:
+Kp = 0.1, Ki = 0.002 and Kd = 4.0. Initially the cold start is performed 
+with Ki = 0 and a slightly larger Kp of 0.15, in order to quickly converge on
+the target trajectory, without having the large overshoot of using the
+integral component when initally the vehicle is far from the ground truth.
+After the vehicle passes a speed of 30MPH, it switches to the final and 
+better behaving parameter set, to be able to tackle the curves at high speed.
+
+- The Proportional (P) component makes sure we are always trying to
+reach the unfolding ground truth values fast and stay on the prescribed path
+on the road. This helps with rapidly changing road angles, since the
+car will react faster to them and not under-steer. The disadvantage of
+reacting rapidly to changing ground truth values is that we will overshoot
+and start oscillating around the proper trajectory values.
+
+- The Derivate (D) component is counteracting the fast response of
+the P component and makes sure that the correction we apply is gradually
+diminished as we get closer to the ground truth, so that we have a measure of
+control over potential overshoot. If the D component is dominating the error
+function, then it can cause the car to under-steer in a sharp turn, since the 
+P component is not dominant enough to correct the error in the car trajectory
+fast enough. On the other hand, if the D componenst is under-represented 
+then the car will be overshooting often and oscillating around the ground
+truth trajectory, which is further problematic in the simulator, since it can
+potentially cause the car to be close to the edge of the road when the next
+turn happens, which can mean that the controller will not have enough time
+to compensate for the next turn.
+
+- The Integral (I) component is meant to correct any bias present due to 
+systemic causes. This means that some part of the vehicle control mechanism 
+can be slightly inacurate, due to imperfections of a real world system: eg. 
+the alignment of the wheels might be slightly off, or the tires might have 
+uneven wear. In these cases we would observe a rather high average error, 
+as the car would be unable to completely reach the ground truth trajectory. 
+Even the oscillations would be around a trajectory parallel to the desired
+one. This was observed in the simulator when using a Ki of zero, since
+the average error was rather high and the vehicle was not following a
+trajectory close to the ground truth one, but one parallel to it and not 
+converging. This was mostly overcome by introducing the integral component,
+and tuning it to a proper value. If a value too large is chosen, the vehicle
+has a tendency to again not react fast enough to changes in the ground truth
+which might lead to under-steer and going off the road.

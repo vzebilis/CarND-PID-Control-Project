@@ -50,58 +50,11 @@ int main() {
         string event = j[0].get<string>();
 
         if (event == "telemetry") {
-//          static int i = 0;
-//          static long count = 0;
-//          static double err = 0;
-//          static double best_err = 1000000;
-//          static double dK[NUM_COEF] = {0.1, 0.1, 0.1};
-//          static double K[NUM_COEF] = {0.0, 0.000, 0.0};
-//          if (TWIDDLE) {
-//            if (count == 0) {
-//              K[i] += dK[i];
-//              steer_pid.Init(K[0], K[2], K[1]);
-//              std::cout << "Kp: " << K[0] << " Kd: " << K[1] << " Ki: " << K[2] << std::endl;
-//              std::cout << "dKp: " << dK[0] << " dKd: " << dK[1] << " dKi: " << dK[2] << std::endl;
-//            }
-//            ++count;
-//            if (count == ITER) {
-//              double cur_err = err / ITER;
-//              if (cur_err < best_err) {
-//                best_err = cur_err;
-//                dK[i] *= 1.1;
-//                count = 0;
-//              } else {
-//                K[i] -= 2 * dK[i];
-//                steer_pid.Init(K[0], K[2], K[1]);
-//                std::cout << "Kp: " << K[0] << " Kd: " << K[1] << " Ki: " << K[2] << std::endl;
-//                std::cout << "dKp: " << dK[0] << " dKd: " << dK[1] << " dKi: " << dK[2] << std::endl;
-//              }
-//            }
-//            if (count == 2 * ITER) {
-//              double cur_err = err / ITER;
-//              if (cur_err < best_err) {
-//                best_err = cur_err;
-//                dK[i] *= 1.1;
-//              }
-//              else {
-//                K[i] += dK[i]; // back to initial value
-//                dK[i] *= 0.9;
-//                steer_pid.Init(K[0], K[2], K[1]);
-//                std::cout << "Kp: " << K[0] << " Kd: " << K[1] << " Ki: " << K[2] << std::endl;
-//                std::cout << "dKp: " << dK[0] << " dKd: " << dK[1] << " dKi: " << dK[2] << std::endl;
-//              }
-//              count = 0;
-//            }
-//            // Make sure to pick the next coefficient next time
-//            ++i;
-//            i %= NUM_COEF;
-//            err = 0;
-//          }
           // j[1] is the data JSON object
           double cte = std::stod(j[1]["cte"].get<string>());
           double speed = std::stod(j[1]["speed"].get<string>());
           double angle = std::stod(j[1]["steering_angle"].get<string>());
-//          err += pow(cte, 2);
+
           if (speed > 30) steer_pid.Init(0.1, 0.002, 4.0);
           steer_pid.UpdateError(cte);
           double error = steer_pid.TotalError();
@@ -118,14 +71,14 @@ int main() {
           
           double avg_cte = steer_pid.AverageError();
           // DEBUG
-          std::cout <<  "Avg-CTE: " << avg_cte << " CTE: " << cte << " Returned steering angle: " << angle << " Speed: " << speed <<
-              " Steering Value: " << steer_value << std::endl;
+//          std::cout <<  "Avg-CTE: " << avg_cte << " CTE: " << cte << " Returned steering angle: " << angle << " Speed: " << speed <<
+//              " Steering Value: " << steer_value << std::endl;
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = THROTTLE;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          std::cout << msg << std::endl;
+//          std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }  // end "telemetry" if
       } else {
